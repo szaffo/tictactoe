@@ -1,5 +1,5 @@
 <?php
-        // Create connection to database
+        // Create connection to the database
        
         $link = mysqli_init(); 
                         
@@ -71,6 +71,63 @@
                         //              Joined 
                         //              Created
 
+
+                        $putdata = fopen("php://input", "r");
+                        $data = "";
+                        while ($Sdata = fread($putdata, 1024)){
+                                $data .= $Sdata;
+                                // echo $Sdata . "\n";
+                        }
+                        fclose($putdata);
+
+                        $data = json_decode($data, true);
+
+                        // Check for name
+                        if (!isset($data["name"])) {
+                            $response .= "You must send name.\n";
+                            echo $response;
+                            break;
+                        }
+
+                        // check for gameid
+                        if (!isset($data["gameid"])) {
+                            $response .= "You must send gameid.\n";
+                            echo $response;
+                            break;
+                        }
+
+                        $gameid = $data["gameid"];
+                        $name = $data["name"];
+
+                        $sql = "SELECT player1, player2, state FROM tictactoe WHERE gameid = {$gameid};";
+                        
+                        $result = mysqli_query($link, $sql);
+                        $result  = mysqli_fetch_assoc($result);
+
+                        
+                        if ($result == null) {
+                            // Creat session
+                            $sql = "INSERT INTO tictactoe (gameid, player1) VALUES ('{$gameid}', '{$name}');";
+                            // var_dump($sql);
+                            $result = mysqli_query($link, $sql);
+                            echo json_encode("Created");
+                        
+                        } elseif (($result["player1"] != "") and ($result["player2"] != "")) {
+                            // SEssion is full
+                            echo json_encode("Full");
+        
+                        } elseif (($result["player1"] != $name) and ($result["player2"] == "")) {
+                            // Jon into session
+                            $sql = "UPDATE tictactoe SET player2 = '{$name}' WHERE gameid = '{$gameid}'";
+                            mysqli_query($link, $sql);
+                            echo json_encode("Joined");
+                        
+                        } elseif (($result["player1"] == $name) and ($result["player2"] == "")) {
+                            echo json_encode("Already exist");
+                        
+                        } else {
+                            echo json_encode("Something is wrong. Please contact me: martin77szabo@gmail.com");
+                        }
 
                         break;
                         

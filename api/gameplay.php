@@ -122,7 +122,15 @@
                             include_once 'libs/randomStarter.php';
                             $starter = randomStarter();
 
-                            $sql = "UPDATE tictactoe SET player2 = '{$name}', state='{$starter}' WHERE gameid = '{$gameid}'";
+                            include_once 'libs/getEmptyMap.php';
+                            $table = getEmptyMap(3,3);
+
+                            if (is_numeric($table)) {
+                                echo "Hiba történt a pálya létrehozása közben";
+                                $starter = "Error";
+                            }
+
+                            $sql = "UPDATE tictactoe SET player2 = '{$name}', state = '{$starter}', table = '{$table}' WHERE gameid = '{$gameid}'";
                             mysqli_query($link, $sql);
                             echo json_encode("Joined");
                         

@@ -118,7 +118,11 @@
         
                         } elseif (($result["player1"] != $name) and ($result["player2"] == "")) {
                             // Jon into session
-                            $sql = "UPDATE tictactoe SET player2 = '{$name}' WHERE gameid = '{$gameid}'";
+                            
+                            include_once 'libs/randomStarter.php';
+                            $starter = randomStarter();
+
+                            $sql = "UPDATE tictactoe SET player2 = '{$name}', state='{$starter}' WHERE gameid = '{$gameid}'";
                             mysqli_query($link, $sql);
                             echo json_encode("Joined");
                         
